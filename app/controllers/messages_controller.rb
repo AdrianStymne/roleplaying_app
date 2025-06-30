@@ -16,7 +16,10 @@ class MessagesController < ApplicationController
           player_name: @message.player.name
         }
       )
-      head :ok
+      respond_to do |format|
+        format.turbo_stream { head :ok }
+        format.html { redirect_to messages_path }
+      end
     else
       render json: { errors: @message.errors.full_messages }, status: :unprocessable_entity
     end
