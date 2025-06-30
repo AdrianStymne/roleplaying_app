@@ -1,0 +1,144 @@
+<h1>Edit Character Sheet</h1>
+<p><strong>Player:</strong> <%= @player.name %></p>
+
+<%= form_with model: [@player, @character_sheet], local: true do |form| %>
+  <% if @character_sheet.errors.any? %>
+    <div style="color: red; margin-bottom: 20px;">
+      <h4><%= pluralize(@character_sheet.errors.count, "error") %> prohibited this character sheet from being saved:</h4>
+      <ul>
+        <% @character_sheet.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- Basic Information Section -->
+  <fieldset style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc;">
+    <legend><strong>Basic Information</strong></legend>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      <div>
+        <%= form.label :name, style: "display: block; font-weight: bold;" %>
+        <%= form.text_field :name, style: "width: 100%; padding: 5px;" %>
+      </div>
+      
+      <div>
+        <%= form.label :character_class, "Class", style: "display: block; font-weight: bold;" %>
+        <%= form.text_field :character_class, style: "width: 100%; padding: 5px;" %>
+      </div>
+      
+      <div>
+        <%= form.label :species, style: "display: block; font-weight: bold;" %>
+        <%= form.text_field :species, style: "width: 100%; padding: 5px;" %>
+      </div>
+      
+      <div>
+        <%= form.label :level, style: "display: block; font-weight: bold;" %>
+        <%= form.number_field :level, style: "width: 100%; padding: 5px;" %>
+      </div>
+      
+      <div>
+        <%= form.label :background, style: "display: block; font-weight: bold;" %>
+        <%= form.text_field :background, style: "width: 100%; padding: 5px;" %>
+      </div>
+      
+      <div>
+        <%= form.label :homeworld, style: "display: block; font-weight: bold;" %>
+        <%= form.text_field :homeworld, style: "width: 100%; padding: 5px;" %>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- Core Stats Section -->
+  <fieldset style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc;">
+    <legend><strong>Attributes</strong></legend>
+    
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+      <div>
+        <%= form.label :strength, style: "display: block; font-weight: bold;" %>
+        <%= form.number_field :strength, style: "width: 100%; padding: 5px;" %>
+      </div>
+      
+      <div>
+        <%= form.label :dexterity, style: "display: block; font-weight: bold;" %>
+        <%= form.number_field :dexterity, style: "width: 100%; padding: 5px;" %>
+      </div>
+      
+      <div>
+        <%= form.label :constitution, style: "display: block; font-weight: bold;" %>
+        <%= form.number_field :constitution, style: "width: 100%; padding: 5px;" %>
+      </div>
+      
+      <div>
+        <%= form.label :intelligence, style: "display: block; font-weight: bold;" %>
+        <%= form.number_field :intelligence, style: "width: 100%; padding: 5px;" %>
+      </div>
+      
+      <div>
+        <%= form.label :wisdom, style: "display: block; font-weight: bold;" %>
+        <%= form.number_field :wisdom, style: "width: 100%; padding: 5px;" %>
+      </div>
+      
+      <div>
+        <%= form.label :charisma, style: "display: block; font-weight: bold;" %>
+        <%= form.number_field :charisma, style: "width: 100%; padding: 5px;" %>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- Skills Section -->
+  <fieldset style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc;">
+    <legend><strong>Skills</strong></legend>
+    
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+      <% @character_sheet.skills.each do |skill_name, level| %>
+        <div>
+          <%= label_tag "character_sheet[skills][#{skill_name}]", skill_name, style: "display: block; font-weight: bold; font-size: 14px;" %>
+          <%= text_field_tag "character_sheet[skills][#{skill_name}]", level, style: "width: 60px; padding: 3px;" %>
+        </div>
+      <% end %>
+    </div>
+  </fieldset>
+
+  <!-- Health & Combat Section -->
+  <fieldset style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc;">
+    <legend><strong>Health & Combat</strong></legend>
+    
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+      <div>
+        <%= form.label :hp_max, "Max HP", style: "display: block; font-weight: bold;" %>
+        <%= form.text_field :hp_max, style: "width: 100%; padding: 5px;" %>
+      </div>
+      
+      <div>
+        <%= form.label :hp_curr, "Current HP", style: "display: block; font-weight: bold;" %>
+        <%= form.text_field :hp_curr, style: "width: 100%; padding: 5px;" %>
+      </div>
+      
+      <div>
+        <%= form.label :ab, "Attack Bonus", style: "display: block; font-weight: bold;" %>
+        <%= form.text_field :ab, style: "width: 100%; padding: 5px;" %>
+      </div>
+      
+      <div>
+        <%= form.label :effort_max, "Max Effort", style: "display: block; font-weight: bold;" %>
+        <%= form.text_field :effort_max, style: "width: 100%; padding: 5px;" %>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- Notes Section -->
+  <fieldset style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc;">
+    <legend><strong>Notes</strong></legend>
+    
+    <%= form.label :notes, style: "display: block; font-weight: bold; margin-bottom: 5px;" %>
+    <%= form.text_area :notes, rows: 6, style: "width: 100%; padding: 5px;" %>
+  </fieldset>
+
+  <!-- Form Actions -->
+  <div style="margin-top: 20px;">
+    <%= form.submit "Update Character Sheet", style: "background: #007cba; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;" %>
+    <%= link_to "Cancel", [@player, @character_sheet], style: "background: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;" %>
+  </div>
+<% end %>

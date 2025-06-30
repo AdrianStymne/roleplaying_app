@@ -1,0 +1,59 @@
+<h1><%= @character_sheet.name || "Character Sheet" %></h1>
+<p><strong>Player:</strong> <%= @player.name %></p>
+
+<div style="margin-bottom: 20px;">
+  <%= link_to "Edit Character Sheet", edit_player_character_sheet_path(@player), style: "background: #007cba; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px;" %>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+  
+  <!-- Basic Info -->
+  <div>
+    <h3>Basic Information</h3>
+    <p><strong>Class:</strong> <%= @character_sheet.character_class %></p>
+    <p><strong>Species:</strong> <%= @character_sheet.species %></p>
+    <p><strong>Level:</strong> <%= @character_sheet.level %></p>
+    <p><strong>Background:</strong> <%= @character_sheet.background %></p>
+    <p><strong>Homeworld:</strong> <%= @character_sheet.homeworld %></p>
+  </div>
+
+  <!-- Core Stats -->
+  <div>
+    <h3>Attributes</h3>
+    <p><strong>Strength:</strong> <%= @character_sheet.strength %></p>
+    <p><strong>Dexterity:</strong> <%= @character_sheet.dexterity %></p>
+    <p><strong>Constitution:</strong> <%= @character_sheet.constitution %></p>
+    <p><strong>Intelligence:</strong> <%= @character_sheet.intelligence %></p>
+    <p><strong>Wisdom:</strong> <%= @character_sheet.wisdom %></p>
+    <p><strong>Charisma:</strong> <%= @character_sheet.charisma %></p>
+  </div>
+
+</div>
+
+<!-- Skills -->
+<div style="margin-top: 20px;">
+  <h3>Skills</h3>
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+    <% @character_sheet.skills.each do |skill_name, level| %>
+      <p><strong><%= skill_name %>:</strong> <%= level %></p>
+    <% end %>
+  </div>
+</div>
+
+<!-- Equipment sections would go here -->
+<% if @character_sheet.weapons.any? %>
+  <div style="margin-top: 20px;">
+    <h3>Weapons</h3>
+    <% @character_sheet.weapons.each do |weapon| %>
+      <p><strong><%= weapon['name'] %>:</strong> <%= weapon['damage'] %> (<%= weapon['range'] %>)</p>
+    <% end %>
+  </div>
+<% end %>
+
+<!-- Notes -->
+<% if @character_sheet.notes.present? %>
+  <div style="margin-top: 20px;">
+    <h3>Notes</h3>
+    <p><%= simple_format(@character_sheet.notes) %></p>
+  </div>
+<% end %>

@@ -30,9 +30,33 @@
 
     <!-- Placeholder for future character sheets -->
     <div class="profile-section">
-      <h2>Character Sheets</h2>
-      <p class="placeholder">Character sheets will appear here in the future.</p>
+  <h2>Character Sheet</h2>
+  <% if @player.character_sheet.present? %>
+    <div class="character-sheet-summary">
+      <div class="character-info">
+        <h3><%= @player.character_sheet.name || "Unnamed Character" %></h3>
+        <div class="character-details">
+          <span class="character-class"><%= @player.character_sheet.character_class %></span>
+          <% if @player.character_sheet.species.present? %>
+            <span class="character-species"><%= @player.character_sheet.species %></span>
+          <% end %>
+          <% if @player.character_sheet.level.present? %>
+            <span class="character-level">Level <%= @player.character_sheet.level %></span>
+          <% end %>
+        </div>
+      </div>
+      <div class="character-actions">
+        <%= link_to "View Character Sheet", [@player, @player.character_sheet], class: "btn btn-primary" %>
+        <%= link_to "Edit Character Sheet", edit_player_character_sheet_path(@player), class: "btn btn-secondary" %>
+      </div>
     </div>
+  <% else %>
+    <div class="no-character-sheet">
+      <p>No character sheet created yet.</p>
+      <%= link_to "Create Character Sheet", new_player_character_sheet_path(@player), class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>
 
     <!-- Recent activity -->
     <div class="profile-section">
@@ -120,4 +144,57 @@
   .message-preview p {
     margin: 5px 0 0 0;
   }
+  .character-sheet-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.character-info h3 {
+  margin: 0 0 8px 0;
+  color: #2c3e50;
+}
+
+.character-details {
+  display: flex;
+  gap: 15px;
+  font-size: 0.9em;
+}
+
+.character-class, .character-species, .character-level {
+  background: #e9ecef;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.character-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.no-character-sheet {
+  text-align: center;
+  padding: 30px;
+  color: #6c757d;
+}
+
+.no-character-sheet p {
+  margin-bottom: 15px;
+  font-size: 1.1em;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
 </style>
