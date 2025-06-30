@@ -1,59 +1,754 @@
-<h1><%= @character_sheet.name || "Character Sheet" %></h1>
-<p><strong>Player:</strong> <%= @player.name %></p>
+<div class="sheet-container">
+  <div class="sheet-header">
+    <h1><%= @character_sheet.name || "Unnamed Character" %></h1>
+    <div class="header-actions">
+      <%= link_to "Edit Character", edit_player_character_sheet_path(@player), class: "btn btn-primary" %>
+      <%= link_to "Back to Player", @player, class: "btn btn-secondary" %>
+    </div>
+  </div>
 
-<div style="margin-bottom: 20px;">
-  <%= link_to "Edit Character Sheet", edit_player_character_sheet_path(@player), style: "background: #007cba; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px;" %>
+  <div class="player-info">
+    <strong>Player:</strong> <%= @player.name %>
+  </div>
+
+  <!-- 1. Basic Information -->
+  <fieldset>
+    <legend>Basic Information</legend>
+    <div class="grid-3">
+      <div class="info-group">
+        <label>Character Name</label>
+        <div class="value"><%= @character_sheet.name %></div>
+      </div>
+      
+      <div class="info-group">
+        <label>Class</label>
+        <div class="value"><%= @character_sheet.character_class %></div>
+      </div>
+      
+      <div class="info-group">
+        <label>Species</label>
+        <div class="value"><%= @character_sheet.species %></div>
+      </div>
+      
+      <div class="info-group">
+        <label>Gender</label>
+        <div class="value"><%= @character_sheet.gender %></div>
+      </div>
+      
+      <div class="info-group">
+        <label>Background</label>
+        <div class="value"><%= @character_sheet.background %></div>
+      </div>
+      
+      <div class="info-group">
+        <label>Homeworld</label>
+        <div class="value"><%= @character_sheet.homeworld %></div>
+      </div>
+      
+      <div class="info-group">
+        <label>Employer</label>
+        <div class="value"><%= @character_sheet.employer %></div>
+      </div>
+      
+      <div class="info-group">
+        <label>Level</label>
+        <div class="value"><%= @character_sheet.level %></div>
+      </div>
+      
+      <div class="info-group">
+        <label>Experience Points</label>
+        <div class="value"><%= @character_sheet.xp %></div>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- 2. Foci & Psychic Powers -->
+  <% foci_array = @character_sheet.foci %>
+  <% psi_powers_array = @character_sheet.psi_powers %>
+  <% if foci_array.any? || psi_powers_array.any? %>
+    <fieldset>
+      <legend>Foci & Psychic Powers</legend>
+      
+      <% if foci_array.any? %>
+        <div class="foci-list">
+          <% foci_array.each do |focus| %>
+            <div class="focus-item">
+              <div class="focus-header">
+                <strong><%= focus['name'] %></strong>
+                <span class="focus-level">Level <%= focus['level'] %></span>
+              </div>
+              <% if focus['description'].present? %>
+                <div class="focus-description"><%= simple_format(focus['description']) %></div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+      
+      <% if psi_powers_array.any? %>
+        <div style="margin-top: 20px;">
+          <h4 style="color: #cd853f; margin-bottom: 10px;">Psychic Powers</h4>
+          <div class="foci-list">
+            <% psi_powers_array.each do |power| %>
+              <div class="focus-item">
+                <div class="focus-header">
+                  <strong><%= power['name'] %></strong>
+                </div>
+                <% if power['description'].present? %>
+                  <div class="focus-description"><%= simple_format(power['description']) %></div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </fieldset>
+  <% end %>
+
+  <!-- 3. Attributes -->
+  <fieldset>
+    <legend>Attributes</legend>
+    <div class="grid-6">
+      <% %w[strength dexterity constitution intelligence wisdom charisma].each do |attr| %>
+        <div class="attribute-display">
+          <div class="attribute-name"><%= attr.titleize %></div>
+          <div class="attribute-value"><%= @character_sheet.send(attr) || 10 %></div>
+          <div class="modifier-display">
+            <%
+              value = (@character_sheet.send(attr) || 10).to_i
+              modifier = case value
+                        when 3 then -2
+                        when 4..7 then -1
+                        when 8..13 then 0
+                        when 14..17 then 1
+                        when 18 then 2
+                        else 0
+                        end
+              mod_str = modifier >= 0 ? "+#{modifier}" : "#{modifier}"
+            %>
+            Mod: <%= mod_str %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </fieldset>
+
+  <!-- 4. Skills -->
+  <fieldset>
+    <legend>Skills</legend>
+    <div class="grid-4" style="margin-bottom: 15px;">
+      <% %w[Administer Connect Exert Fix Heal Know Lead Notice Perform Pilot Program Punch Shoot Sneak Stab Survive Talk Trade Work Plot].each do |skill| %>
+        <div class="skill-display">
+          <span class="skill-name"><%= skill %></span>
+          <span class="skill-value">
+            <%
+              skill_level = @character_sheet.skills[skill] || '-1'
+              skill_class = case skill_level.to_i
+                           when -1 then 'untrained'
+                           when 0 then 'trained'
+                           when 1 then 'skilled'
+                           when 2 then 'expert'
+                           when 3 then 'master'
+                           when 4 then 'legendary'
+                           else 'untrained'
+                           end
+            %>
+            <span class="skill-level <%= skill_class %>"><%= skill_level %></span>
+          </span>
+        </div>
+      <% end %>
+    </div>
+    
+    <h4 style="color: #cd853f; margin: 20px 0 10px 0;">Psychic Skills</h4>
+    <div class="grid-3">
+      <% %w[Biopsionics Metapsionics Precognition Telekinesis Telepathy Teleportation].each do |skill| %>
+        <div class="skill-display psychic">
+          <span class="skill-name"><%= skill %></span>
+          <span class="skill-value">
+            <%
+              skill_level = @character_sheet.skills[skill] || '-1'
+              skill_class = case skill_level.to_i
+                           when -1 then 'untrained'
+                           when 0 then 'trained'
+                           when 1 then 'skilled'
+                           when 2 then 'expert'
+                           when 3 then 'master'
+                           when 4 then 'legendary'
+                           else 'untrained'
+                           end
+            %>
+            <span class="skill-level <%= skill_class %>"><%= skill_level %></span>
+          </span>
+        </div>
+      <% end %>
+    </div>
+  </fieldset>
+
+  <!-- 5. Quick Reference -->
+  <fieldset>
+    <legend>Quick Reference</legend>
+    
+    <!-- Hit Points & Effort - Side by side at top -->
+    <div class="grid-2" style="margin-bottom: 15px;">
+      <div class="quick-ref-group">
+        <h4 class="group-title">Hit Points</h4>
+        <div class="grid-1">
+          <div class="info-group">
+            <label>Max HP</label>
+            <div class="value"><%= @character_sheet.hp_max %></div>
+          </div>
+          
+          <div class="info-group">
+            <label>Current HP</label>
+            <div class="value hp-current"><%= @character_sheet.hp_curr %></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="quick-ref-group">
+        <h4 class="group-title">Effort</h4>
+        <div class="grid-1">
+          <div class="info-group">
+            <label>Max Effort</label>
+            <div class="value"><%= @character_sheet.effort_max %></div>
+          </div>
+          
+          <div class="info-group">
+            <label>Current Effort</label>
+            <div class="value"><%= @character_sheet.effort_curr %></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Attack Bonuses Group -->
+    <div class="quick-ref-group">
+      <h4 class="group-title">Attack Bonuses</h4>
+      <div class="grid-2">
+        <div class="info-group">
+          <label>Base Attack Bonus</label>
+          <div class="value"><%= @character_sheet.base_attack_bonus %></div>
+        </div>
+        
+        <div class="info-group">
+          <label>Full Attack Bonus</label>
+          <div class="value"><%= @character_sheet.full_attack_bonus %></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Saving Throws Group -->
+    <div class="quick-ref-group">
+      <h4 class="group-title">Saving Throws</h4>
+      <div class="grid-3">
+        <div class="info-group">
+          <label>Physical</label>
+          <div class="value"><%= @character_sheet.st_phys %></div>
+        </div>
+        
+        <div class="info-group">
+          <label>Evasion</label>
+          <div class="value"><%= @character_sheet.st_evade %></div>
+        </div>
+        
+        <div class="info-group">
+          <label>Mental</label>
+          <div class="value"><%= @character_sheet.st_ment %></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Initiative & AC Group -->
+    <div class="quick-ref-group">
+      <h4 class="group-title">Combat Stats</h4>
+      <div class="grid-2">
+        <div class="info-group">
+          <label>Initiative</label>
+          <div class="value"><%= @character_sheet.initiative %></div>
+        </div>
+        
+        <div class="info-group">
+          <label>Active AC</label>
+          <div class="value"><%= @character_sheet.active_ac %></div>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- 6. Equipment (Weapons & Armor) -->
+  <% weapons_array = @character_sheet.weapons %>
+  <% if weapons_array.any? %>
+    <fieldset>
+      <legend>Weapons</legend>
+      <div class="equipment-list">
+        <% weapons_array.each do |weapon| %>
+          <div class="equipment-item">
+            <div class="equipment-header">
+              <strong><%= weapon['name'] %></strong>
+            </div>
+            <div class="equipment-stats">
+              <span class="stat">Damage: <%= weapon['damage'] %></span>
+              <span class="stat">Range: <%= weapon['range'] %></span>
+              <% if weapon['notes'].present? %>
+                <span class="stat">Notes: <%= weapon['notes'] %></span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </fieldset>
+  <% end %>
+
+  <% armor_array = @character_sheet.armor %>
+  <% if armor_array.any? %>
+    <fieldset>
+      <legend>Armor</legend>
+      <div class="equipment-list">
+        <% armor_array.each do |armor_piece| %>
+          <div class="equipment-item">
+            <div class="equipment-header">
+              <strong><%= armor_piece['name'] %></strong>
+            </div>
+            <div class="equipment-stats">
+              <span class="stat">AC: <%= armor_piece['ac'] %></span>
+              <% if armor_piece['notes'].present? %>
+                <span class="stat">Notes: <%= armor_piece['notes'] %></span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </fieldset>
+  <% end %>
+
+  <!-- 7. Cyberware & Augmentations -->
+  <% if @character_sheet.cyberware.present? %>
+    <fieldset>
+      <legend>Cyberware & Augmentations</legend>
+      <div class="info-group">
+        <div class="value cyberware-text"><%= simple_format(@character_sheet.cyberware) %></div>
+      </div>
+    </fieldset>
+  <% end %>
+
+  <!-- 8. Economics -->
+  <fieldset>
+    <legend>Economics</legend>
+    <div class="grid-2">
+      <div class="info-group">
+        <label>Credits</label>
+        <div class="value credits-positive"><%= @character_sheet.credits %></div>
+      </div>
+      
+      <div class="info-group">
+        <label>Credits Owed</label>
+        <div class="value credits-negative"><%= @character_sheet.credits_owed %></div>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- 9. System Strain -->
+  <fieldset>
+    <legend>System Strain</legend>
+    <div class="grid-2">
+      <div class="info-group">
+        <label>Current Strain</label>
+        <div class="value"><%= @character_sheet.system_strain %></div>
+      </div>
+      
+      <div class="info-group">
+        <label>Permanent Strain</label>
+        <div class="value strain-warning"><%= @character_sheet.system_strain_perm %></div>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- 10. Goals & Background -->
+  <% goals_array = @character_sheet.goals %>
+  <% if goals_array.any? %>
+    <fieldset>
+      <legend>Goals & Background</legend>
+      <div class="goals-list">
+        <% goals_array.each do |goal| %>
+          <div class="goal-item">
+            <div class="goal-header">
+              <strong><%= goal['goal'] %></strong>
+            </div>
+            <% if goal['notes'].present? %>
+              <div class="goal-notes"><%= simple_format(goal['notes']) %></div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </fieldset>
+  <% end %>
+
+  <!-- 11. Notes -->
+  <% if @character_sheet.notes.present? || @character_sheet.tags.present? %>
+    <fieldset>
+      <legend>Notes</legend>
+      
+      <% if @character_sheet.notes.present? %>
+        <div class="info-group">
+          <label>General Notes</label>
+          <div class="value notes-text"><%= simple_format(@character_sheet.notes) %></div>
+        </div>
+      <% end %>
+      
+      <% if @character_sheet.tags.present? %>
+        <div class="info-group" style="margin-top: 15px;">
+          <label>Tags</label>
+          <div class="value">
+            <div class="tags-container">
+              <% @character_sheet.tags.split(',').each do |tag| %>
+                <span class="tag"><%= tag.strip %></span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </fieldset>
+  <% end %>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-  
-  <!-- Basic Info -->
-  <div>
-    <h3>Basic Information</h3>
-    <p><strong>Class:</strong> <%= @character_sheet.character_class %></p>
-    <p><strong>Species:</strong> <%= @character_sheet.species %></p>
-    <p><strong>Level:</strong> <%= @character_sheet.level %></p>
-    <p><strong>Background:</strong> <%= @character_sheet.background %></p>
-    <p><strong>Homeworld:</strong> <%= @character_sheet.homeworld %></p>
-  </div>
+<style>
+  body {
+    background: #1a1a1a;
+    color: #c0c0c0;
+    font-family: 'Courier New', monospace;
+    line-height: 1.4;
+    margin: 0;
+    padding: 20px;
+  }
 
-  <!-- Core Stats -->
-  <div>
-    <h3>Attributes</h3>
-    <p><strong>Strength:</strong> <%= @character_sheet.strength %></p>
-    <p><strong>Dexterity:</strong> <%= @character_sheet.dexterity %></p>
-    <p><strong>Constitution:</strong> <%= @character_sheet.constitution %></p>
-    <p><strong>Intelligence:</strong> <%= @character_sheet.intelligence %></p>
-    <p><strong>Wisdom:</strong> <%= @character_sheet.wisdom %></p>
-    <p><strong>Charisma:</strong> <%= @character_sheet.charisma %></p>
-  </div>
+  .sheet-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #2a2a2a;
+    border: 2px solid #4a4a4a;
+    border-radius: 8px;
+    border-bottom: 3px solid #8b4513;
+    padding: 30px;
+  }
 
-</div>
+  .sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 20px;
+    background: #333;
+    border: 2px solid #4a4a4a;
+    border-radius: 8px;
+    border-left: 4px solid #8b4513;
+  }
 
-<!-- Skills -->
-<div style="margin-top: 20px;">
-  <h3>Skills</h3>
-  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-    <% @character_sheet.skills.each do |skill_name, level| %>
-      <p><strong><%= skill_name %>:</strong> <%= level %></p>
-    <% end %>
-  </div>
-</div>
+  .sheet-header h1 {
+    color: #c0c0c0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 1.8em;
+    margin: 0;
+    border: none;
+    padding: 0;
+  }
 
-<!-- Equipment sections would go here -->
-<% if @character_sheet.weapons.any? %>
-  <div style="margin-top: 20px;">
-    <h3>Weapons</h3>
-    <% @character_sheet.weapons.each do |weapon| %>
-      <p><strong><%= weapon['name'] %>:</strong> <%= weapon['damage'] %> (<%= weapon['range'] %>)</p>
-    <% end %>
-  </div>
-<% end %>
+  .header-actions {
+    display: flex;
+    gap: 10px;
+  }
 
-<!-- Notes -->
-<% if @character_sheet.notes.present? %>
-  <div style="margin-top: 20px;">
-    <h3>Notes</h3>
-    <p><%= simple_format(@character_sheet.notes) %></p>
-  </div>
-<% end %>
+  .player-info {
+    background: #333;
+    padding: 10px 15px;
+    margin-bottom: 25px;
+    border-left: 4px solid #8b4513;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  fieldset {
+    background: #333;
+    border: 2px solid #4a4a4a;
+    border-radius: 6px;
+    border-left: 4px solid #8b4513;
+    margin-bottom: 25px;
+    padding: 20px;
+  }
+
+  legend {
+    background: #2a2a2a;
+    color: #cd853f;
+    padding: 8px 15px;
+    border: 2px solid #4a4a4a;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9em;
+  }
+
+  .grid-1 { display: grid; grid-template-columns: 1fr; gap: 15px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+  .grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; }
+
+  .quick-ref-group {
+    background: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 3px solid #8b4513;
+  }
+
+  .group-title {
+    color: #cd853f;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8em;
+    margin: 0 0 10px 0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #555;
+  }
+
+  .info-group {
+    background: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 12px;
+  }
+
+  .info-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #cd853f;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8em;
+  }
+
+  .info-group .value {
+    color: #c0c0c0;
+    font-size: 1em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    min-height: 1.2em;
+  }
+
+  .attribute-display {
+    background: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .attribute-name {
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    color: #cd853f;
+    font-size: 0.8em;
+  }
+
+  .attribute-value {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #c0c0c0;
+    margin: 5px 0;
+  }
+
+  .modifier-display {
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 5px;
+  }
+
+  .skill-display {
+    background: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .skill-display.psychic {
+    border-left: 3px solid #8b4513;
+  }
+
+  .skill-name {
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #c0c0c0;
+  }
+
+  .skill-level {
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .skill-level.untrained { background: #4a2a2a; color: #ff6b6b; }
+  .skill-level.trained { background: #3a3a3a; color: #c0c0c0; }
+  .skill-level.skilled { background: #2a4a2a; color: #90ee90; }
+  .skill-level.expert { background: #4a4a2a; color: #ffeb3b; }
+  .skill-level.master { background: #4a2a4a; color: #e91e63; }
+  .skill-level.legendary { background: #2a2a4a; color: #9c27b0; }
+
+  .equipment-list, .foci-list, .goals-list {
+    display: grid;
+    gap: 15px;
+  }
+
+  .equipment-item, .focus-item, .goal-item {
+    background: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 15px;
+  }
+
+  .equipment-header, .focus-header, .goal-header {
+    color: #cd853f;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+  }
+
+  .focus-level {
+    float: right;
+    background: #2a4a2a;
+    color: #90ee90;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7em;
+  }
+
+  .equipment-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .stat {
+    color: #888;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .focus-description, .goal-notes {
+    color: #c0c0c0;
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag {
+    background: #4a4a2a;
+    color: #ffeb3b;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+  }
+
+  .hp-current { color: #90ee90; }
+  .strain-warning { color: #ff6b6b; }
+  .credits-positive { color: #90ee90; }
+  .credits-negative { color: #ff6b6b; }
+
+  .cyberware-text, .psychic-powers, .notes-text {
+    background: #1a1a1a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 12px;
+    line-height: 1.4;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 8px 15px;
+    text-decoration: none;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Courier New', monospace;
+    border: 2px solid;
+    cursor: pointer;
+    font-size: 0.8em;
+  }
+
+  .btn-primary {
+    background: #8b4513;
+    color: #ffffff;
+    border-color: #654321;
+  }
+
+  .btn-primary:hover {
+    background: #a0522d;
+  }
+
+  .btn-secondary {
+    background: #4a4a4a;
+    color: #c0c0c0;
+    border-color: #555;
+  }
+
+  .btn-secondary:hover {
+    background: #555;
+  }
+
+  @media (max-width: 768px) {
+    .grid-1, .grid-2, .grid-3, .grid-4, .grid-6 {
+      grid-template-columns: 1fr;
+    }
+    
+    .sheet-container {
+      padding: 20px;
+    }
+    
+    .sheet-header {
+      flex-direction: column;
+      gap: 15px;
+      align-items: flex-start;
+    }
+    
+    .header-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .btn {
+      flex: 1;
+    }
+
+    .equipment-stats {
+      flex-direction: column;
+      gap: 5px;
+    }
+  }
+</style>

@@ -1,62 +1,108 @@
 class CharacterSheet < ApplicationRecord
   belongs_to :player
 
-  # JSON field accessors with defaults
-  def weapons
-    weapons_json || []
+  # Virtual attributes for Rails forms - Weapons
+  def weapons_attributes=(attributes)
+    valid_weapons = attributes.values.reject { |attr| attr.values.all?(&:blank?) }
+    self.weapons_json = valid_weapons.to_json
   end
 
-  def weapons=(value)
-    self.weapons_json = value
+  def weapons_attributes
+    weapons.each_with_index.map { |weapon, index| [index, weapon] }.to_h
+  end
+
+  def weapons
+    weapons_json.present? ? JSON.parse(weapons_json) : []
+  rescue JSON::ParserError
+    []
+  end
+
+  # Virtual attributes for Rails forms - Armor
+  def armor_attributes=(attributes)
+    valid_armor = attributes.values.reject { |attr| attr.values.all?(&:blank?) }
+    self.armor_json = valid_armor.to_json
+  end
+
+  def armor_attributes
+    armor.each_with_index.map { |armor_piece, index| [index, armor_piece] }.to_h
   end
 
   def armor
-    armor_json || []
+    armor_json.present? ? JSON.parse(armor_json) : []
+  rescue JSON::ParserError
+    []
   end
 
-  def armor=(value)
-    self.armor_json = value
+  # Virtual attributes for Rails forms - Foci
+  def foci_attributes=(attributes)
+    valid_foci = attributes.values.reject { |attr| attr.values.all?(&:blank?) }
+    self.foci_json = valid_foci.to_json
   end
 
-  def gear
-    gear_json || []
+  def foci_attributes
+    foci.each_with_index.map { |focus, index| [index, focus] }.to_h
   end
 
-  def gear=(value)
-    self.gear_json = value
+  def foci
+    foci_json.present? ? JSON.parse(foci_json) : []
+  rescue JSON::ParserError
+    []
   end
 
+  # Virtual attributes for Rails forms - Goals
+  def goals_attributes=(attributes)
+    valid_goals = attributes.values.reject { |attr| attr.values.all?(&:blank?) }
+    self.goals_json = valid_goals.to_json
+  end
+
+  def goals_attributes
+    goals.each_with_index.map { |goal, index| [index, goal] }.to_h
+  end
+
+  def goals
+    goals_json.present? ? JSON.parse(goals_json) : []
+  rescue JSON::ParserError
+    []
+  end
+
+  # Skills accessor
   def skills
-    skills_json || default_skills
+    skills_json.present? ? skills_json : default_skills
   end
 
   def skills=(value)
     self.skills_json = value
   end
 
-  def foci
-    foci_json || []
+  # Simple accessors for other JSON fields
+  def gear
+    gear_json.present? ? JSON.parse(gear_json) : []
+  rescue JSON::ParserError
+    []
   end
 
-  def foci=(value)
-    self.foci_json = value
+  def gear=(value)
+    self.gear_json = value.is_a?(Array) ? value.to_json : value
   end
 
-  def psi_powers
-    psi_powers_json || []
-  end
+def psi_powers_attributes=(attributes)
+  valid_powers = attributes.values.reject { |attr| attr.values.all?(&:blank?) }
+  self.psi_powers_json = valid_powers.to_json
+end
 
-  def psi_powers=(value)
-    self.psi_powers_json = value
-  end
+def psi_powers_attributes
+  psi_powers.each_with_index.map { |power, index| [index, power] }.to_h
+end
 
-  def goals
-    goals_json || []
-  end
+def psi_powers
+  psi_powers_json.present? ? JSON.parse(psi_powers_json) : []
+rescue JSON::ParserError
+  []
+end
 
-  def goals=(value)
-    self.goals_json = value
-  end
+def psi_powers=(value)
+  self.psi_powers_json = value.is_a?(Array) ? value.to_json : value
+end
 
   private
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_30_125311) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_30_165831) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -97,6 +97,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_30_125311) do
     t.json "goals_json"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "initiative"
+    t.string "base_attack_bonus"
+    t.string "full_attack_bonus"
+    t.string "active_ac"
     t.index ["player_id"], name: "index_character_sheets_on_player_id"
   end
 

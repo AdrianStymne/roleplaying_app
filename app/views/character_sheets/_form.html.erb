@@ -1,0 +1,889 @@
+<div class="form-container">
+  <h1><%= @character_sheet.persisted? ? "Edit Character Sheet" : "Create Character Sheet" %></h1>
+  <div class="player-info">
+    <strong>Player:</strong> <%= @player.name %>
+  </div>
+
+  <% if @character_sheet.errors.any? %>
+    <div class="errors">
+      <h4><%= pluralize(@character_sheet.errors.count, "error") %> prohibited this character sheet from being saved:</h4>
+      <ul>
+        <% @character_sheet.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: [@player, @character_sheet], url: player_character_sheet_path(@player), local: true do |form| %>
+    <!-- 1. Basic Information -->
+    <fieldset>
+      <legend>Basic Information</legend>
+      <div class="grid-3">
+        <div class="field-group">
+          <%= form.label :name, "Character Name" %>
+          <%= form.text_field :name %>
+        </div>
+        
+        <div class="field-group">
+          <%= form.label :character_class, "Class" %>
+          <%= form.text_field :character_class %>
+        </div>
+        
+        <div class="field-group">
+          <%= form.label :species %>
+          <%= form.text_field :species %>
+        </div>
+        
+        <div class="field-group">
+          <%= form.label :gender %>
+          <%= form.text_field :gender %>
+        </div>
+        
+        <div class="field-group">
+          <%= form.label :background %>
+          <%= form.text_field :background %>
+        </div>
+        
+        <div class="field-group">
+          <%= form.label :homeworld %>
+          <%= form.text_field :homeworld %>
+        </div>
+        
+        <div class="field-group">
+          <%= form.label :employer %>
+          <%= form.text_field :employer %>
+        </div>
+        
+        <div class="field-group">
+          <%= form.label :level %>
+          <%= form.number_field :level, min: 1 %>
+        </div>
+        
+        <div class="field-group">
+          <%= form.label :xp, "Experience Points" %>
+          <%= form.text_field :xp %>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 2. Foci & Psychic Powers -->
+    <fieldset>
+      <legend>Foci & Psychic Powers</legend>
+      <div id="foci-container">
+        <% foci_array = @character_sheet.foci.is_a?(Array) ? @character_sheet.foci : [] %>
+        <% if foci_array.any? %>
+          <% foci_array.each_with_index do |focus, index| %>
+            <div class="dynamic-item">
+              <% if index > 0 %>
+                <button type="button" class="remove-btn" onclick="removeItem(this)">×</button>
+              <% end %>
+              <div class="grid-2">
+                <div class="field-group">
+                  <label>Focus Name</label>
+                  <input type="text" name="character_sheet[foci_attributes][<%= index %>][name]" value="<%= focus['name'] %>" placeholder="e.g., Gunslinger">
+                </div>
+                <div class="field-group">
+                  <label>Level</label>
+                  <input type="number" name="character_sheet[foci_attributes][<%= index %>][level]" value="<%= focus['level'] %>" min="1" max="2" placeholder="1 or 2">
+                </div>
+              </div>
+              <div class="field-group" style="margin-top: 10px;">
+                <label>Description</label>
+                <textarea name="character_sheet[foci_attributes][<%= index %>][description]" rows="2" placeholder="Focus abilities and benefits..."><%= focus['description'] %></textarea>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="dynamic-item">
+            <div class="grid-2">
+              <div class="field-group">
+                <label>Focus Name</label>
+                <input type="text" name="character_sheet[foci_attributes][0][name]" placeholder="e.g., Gunslinger">
+              </div>
+              <div class="field-group">
+                <label>Level</label>
+                <input type="number" name="character_sheet[foci_attributes][0][level]" min="1" max="2" placeholder="1 or 2">
+              </div>
+            </div>
+            <div class="field-group" style="margin-top: 10px;">
+              <label>Description</label>
+              <textarea name="character_sheet[foci_attributes][0][description]" rows="2" placeholder="Focus abilities and benefits..."></textarea>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <button type="button" class="add-btn" onclick="addFocus()">Add Focus</button>
+      
+      <div style="margin-top: 20px;">
+        <h4 style="color: #cd853f; margin-bottom: 10px;">Psychic Powers</h4>
+        <div id="psi-powers-container">
+          <% psi_powers_array = @character_sheet.psi_powers %>
+          <% if psi_powers_array.any? %>
+            <% psi_powers_array.each_with_index do |power, index| %>
+              <div class="dynamic-item">
+                <% if index > 0 %>
+                  <button type="button" class="remove-btn" onclick="removeItem(this)">×</button>
+                <% end %>
+                <div class="grid-2">
+                  <div class="field-group">
+                    <label>Power Name</label>
+                    <input type="text" name="character_sheet[psi_powers_attributes][<%= index %>][name]" value="<%= power['name'] %>" placeholder="e.g., Telepathic Contact">
+                  </div>
+                  <div class="field-group">
+                    <label>Description</label>
+                    <textarea name="character_sheet[psi_powers_attributes][<%= index %>][description]" rows="2" placeholder="Power description and effects..."><%= power['description'] %></textarea>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="dynamic-item">
+              <div class="grid-2">
+                <div class="field-group">
+                  <label>Power Name</label>
+                  <input type="text" name="character_sheet[psi_powers_attributes][0][name]" placeholder="e.g., Telepathic Contact">
+                </div>
+                <div class="field-group">
+                  <label>Description</label>
+                  <textarea name="character_sheet[psi_powers_attributes][0][description]" rows="2" placeholder="Power description and effects..."></textarea>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <button type="button" class="add-btn" onclick="addPsiPower()">Add Psychic Power</button>
+      </div>
+    </fieldset>
+
+    <!-- 3. Attributes -->
+    <fieldset>
+      <legend>Attributes</legend>
+      <div class="grid-6">
+        <div class="attribute-group">
+          <div class="attribute-name">Strength</div>
+          <%= form.number_field :strength, min: 3, max: 18, onchange: "updateModifier(this, 'str-mod')" %>
+          <div class="modifier-display" id="str-mod">Mod: +0</div>
+        </div>
+        
+        <div class="attribute-group">
+          <div class="attribute-name">Dexterity</div>
+          <%= form.number_field :dexterity, min: 3, max: 18, onchange: "updateModifier(this, 'dex-mod')" %>
+          <div class="modifier-display" id="dex-mod">Mod: +0</div>
+        </div>
+        
+        <div class="attribute-group">
+          <div class="attribute-name">Constitution</div>
+          <%= form.number_field :constitution, min: 3, max: 18, onchange: "updateModifier(this, 'con-mod')" %>
+          <div class="modifier-display" id="con-mod">Mod: +0</div>
+        </div>
+        
+        <div class="attribute-group">
+          <div class="attribute-name">Intelligence</div>
+          <%= form.number_field :intelligence, min: 3, max: 18, onchange: "updateModifier(this, 'int-mod')" %>
+          <div class="modifier-display" id="int-mod">Mod: +0</div>
+        </div>
+        
+        <div class="attribute-group">
+          <div class="attribute-name">Wisdom</div>
+          <%= form.number_field :wisdom, min: 3, max: 18, onchange: "updateModifier(this, 'wis-mod')" %>
+          <div class="modifier-display" id="wis-mod">Mod: +0</div>
+        </div>
+        
+        <div class="attribute-group">
+          <div class="attribute-name">Charisma</div>
+          <%= form.number_field :charisma, min: 3, max: 18, onchange: "updateModifier(this, 'cha-mod')" %>
+          <div class="modifier-display" id="cha-mod">Mod: +0</div>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 4. Skills -->
+    <fieldset>
+      <legend>Skills</legend>
+      <div class="grid-4" style="margin-bottom: 15px;">
+        <% %w[Administer Connect Exert Fix Heal Know Lead Notice Perform Pilot Program Punch Shoot Sneak Stab Survive Talk Trade Work Plot].each do |skill| %>
+          <div class="field-group">
+            <label><%= skill %></label>
+            <%= select_tag "character_sheet[skills_json][#{skill}]", 
+                options_for_select([
+                  ['-1 (Untrained)', '-1'],
+                  ['0 (Trained)', '0'],
+                  ['1 (Skilled)', '1'],
+                  ['2 (Expert)', '2'],
+                  ['3 (Master)', '3'],
+                  ['4 (Legendary)', '4']
+                ], @character_sheet.skills[skill] || '-1'),
+                { class: 'skill-select' } %>
+          </div>
+        <% end %>
+      </div>
+      
+      <h4 style="color: #cd853f; margin: 20px 0 10px 0;">Psychic Skills</h4>
+      <div class="grid-3">
+        <% %w[Biopsionics Metapsionics Precognition Telekinesis Telepathy Teleportation].each do |skill| %>
+          <div class="field-group">
+            <label><%= skill %></label>
+            <%= select_tag "character_sheet[skills_json][#{skill}]", 
+                options_for_select([
+                  ['-1 (Untrained)', '-1'],
+                  ['0 (Trained)', '0'],
+                  ['1 (Skilled)', '1'],
+                  ['2 (Expert)', '2'],
+                  ['3 (Master)', '3'],
+                  ['4 (Legendary)', '4']
+                ], @character_sheet.skills[skill] || '-1'),
+                { class: 'skill-select' } %>
+          </div>
+        <% end %>
+      </div>
+    </fieldset>
+
+    <!-- 5. Quick Reference -->
+    <fieldset>
+      <legend>Quick Reference</legend>
+      
+      <!-- Hit Points & Effort - Side by side at top -->
+      <div class="grid-2" style="margin-bottom: 15px;">
+        <div class="quick-ref-group">
+          <h4 class="group-title">Hit Points</h4>
+          <div class="grid-1">
+            <div class="field-group">
+              <%= form.label :hp_max, "Max HP" %>
+              <%= form.text_field :hp_max %>
+            </div>
+            
+            <div class="field-group">
+              <%= form.label :hp_curr, "Current HP" %>
+              <%= form.text_field :hp_curr %>
+            </div>
+          </div>
+        </div>
+        
+        <div class="quick-ref-group">
+          <h4 class="group-title">Effort</h4>
+          <div class="grid-1">
+            <div class="field-group">
+              <%= form.label :effort_max, "Max Effort" %>
+              <%= form.text_field :effort_max %>
+            </div>
+            
+            <div class="field-group">
+              <%= form.label :effort_curr, "Current Effort" %>
+              <%= form.text_field :effort_curr %>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Attack Bonuses Group -->
+      <div class="quick-ref-group">
+        <h4 class="group-title">Attack Bonuses</h4>
+        <div class="grid-2">
+          <div class="field-group">
+            <%= form.label :base_attack_bonus, "Base Attack Bonus" %>
+            <%= form.text_field :base_attack_bonus %>
+          </div>
+          
+          <div class="field-group">
+            <%= form.label :full_attack_bonus, "Full Attack Bonus" %>
+            <%= form.text_field :full_attack_bonus %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Saving Throws Group -->
+      <div class="quick-ref-group">
+        <h4 class="group-title">Saving Throws</h4>
+        <div class="grid-3">
+          <div class="field-group">
+            <%= form.label :st_phys, "Physical" %>
+            <%= form.text_field :st_phys %>
+          </div>
+          
+          <div class="field-group">
+            <%= form.label :st_evade, "Evasion" %>
+            <%= form.text_field :st_evade %>
+          </div>
+          
+          <div class="field-group">
+            <%= form.label :st_ment, "Mental" %>
+            <%= form.text_field :st_ment %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Initiative & AC Group -->
+      <div class="quick-ref-group">
+        <h4 class="group-title">Combat Stats</h4>
+        <div class="grid-2">
+          <div class="field-group">
+            <%= form.label :initiative %>
+            <%= form.text_field :initiative %>
+          </div>
+          
+          <div class="field-group">
+            <%= form.label :active_ac, "Active AC" %>
+            <%= form.text_field :active_ac %>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 6. Equipment (Weapons & Armor) -->
+    <fieldset>
+      <legend>Weapons</legend>
+      <div id="weapons-container">
+        <% weapons_array = @character_sheet.weapons.is_a?(Array) ? @character_sheet.weapons : [] %>
+        <% if weapons_array.any? %>
+          <% weapons_array.each_with_index do |weapon, index| %>
+            <div class="dynamic-item">
+              <% if index > 0 %>
+                <button type="button" class="remove-btn" onclick="removeItem(this)">×</button>
+              <% end %>
+              <div class="grid-4">
+                <div class="field-group">
+                  <label>Weapon Name</label>
+                  <input type="text" name="character_sheet[weapons_attributes][<%= index %>][name]" value="<%= weapon['name'] %>" placeholder="e.g., Laser Rifle">
+                </div>
+                <div class="field-group">
+                  <label>Damage</label>
+                  <input type="text" name="character_sheet[weapons_attributes][<%= index %>][damage]" value="<%= weapon['damage'] %>" placeholder="e.g., 1d10">
+                </div>
+                <div class="field-group">
+                  <label>Range</label>
+                  <input type="text" name="character_sheet[weapons_attributes][<%= index %>][range]" value="<%= weapon['range'] %>" placeholder="e.g., 300/600">
+                </div>
+                <div class="field-group">
+                  <label>Notes</label>
+                  <input type="text" name="character_sheet[weapons_attributes][<%= index %>][notes]" value="<%= weapon['notes'] %>" placeholder="Special properties">
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="dynamic-item">
+            <div class="grid-4">
+              <div class="field-group">
+                <label>Weapon Name</label>
+                <input type="text" name="character_sheet[weapons_attributes][0][name]" placeholder="e.g., Laser Rifle">
+              </div>
+              <div class="field-group">
+                <label>Damage</label>
+                <input type="text" name="character_sheet[weapons_attributes][0][damage]" placeholder="e.g., 1d10">
+              </div>
+              <div class="field-group">
+                <label>Range</label>
+                <input type="text" name="character_sheet[weapons_attributes][0][range]" placeholder="e.g., 300/600">
+              </div>
+              <div class="field-group">
+                <label>Notes</label>
+                <input type="text" name="character_sheet[weapons_attributes][0][notes]" placeholder="Special properties">
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <button type="button" class="add-btn" onclick="addWeapon()">Add Weapon</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Armor</legend>
+      <div id="armor-container">
+        <% armor_array = @character_sheet.armor.is_a?(Array) ? @character_sheet.armor : [] %>
+        <% if armor_array.any? %>
+          <% armor_array.each_with_index do |armor_piece, index| %>
+            <div class="dynamic-item">
+              <% if index > 0 %>
+                <button type="button" class="remove-btn" onclick="removeItem(this)">×</button>
+              <% end %>
+              <div class="grid-3">
+                <div class="field-group">
+                  <label>Armor Name</label>
+                  <input type="text" name="character_sheet[armor_attributes][<%= index %>][name]" value="<%= armor_piece['name'] %>" placeholder="e.g., Combat Armor">
+                </div>
+                <div class="field-group">
+                  <label>AC</label>
+                  <input type="text" name="character_sheet[armor_attributes][<%= index %>][ac]" value="<%= armor_piece['ac'] %>" placeholder="e.g., 16">
+                </div>
+                <div class="field-group">
+                  <label>Notes</label>
+                  <input type="text" name="character_sheet[armor_attributes][<%= index %>][notes]" value="<%= armor_piece['notes'] %>" placeholder="Special properties">
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="dynamic-item">
+            <div class="grid-3">
+              <div class="field-group">
+                <label>Armor Name</label>
+                <input type="text" name="character_sheet[armor_attributes][0][name]" placeholder="e.g., Combat Armor">
+              </div>
+              <div class="field-group">
+                <label>AC</label>
+                <input type="text" name="character_sheet[armor_attributes][0][ac]" placeholder="e.g., 16">
+              </div>
+              <div class="field-group">
+                <label>Notes</label>
+                <input type="text" name="character_sheet[armor_attributes][0][notes]" placeholder="Special properties">
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <button type="button" class="add-btn" onclick="addArmor()">Add Armor</button>
+    </fieldset>
+
+    <!-- 7. Cyberware & Augmentations -->
+    <fieldset>
+      <legend>Cyberware & Augmentations</legend>
+      <div class="field-group">
+        <%= form.label :cyberware, "Cyberware Details" %>
+        <%= form.text_area :cyberware, rows: 4, placeholder: "List cyberware, biowares, and other augmentations..." %>
+      </div>
+    </fieldset>
+
+    <!-- 8. Economics -->
+    <fieldset>
+      <legend>Economics</legend>
+      <div class="grid-2">
+        <div class="field-group">
+          <%= form.label :credits %>
+          <%= form.text_field :credits %>
+        </div>
+        
+        <div class="field-group">
+          <%= form.label :credits_owed %>
+          <%= form.text_field :credits_owed %>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 9. System Strain -->
+    <fieldset>
+      <legend>System Strain</legend>
+      <div class="grid-2">
+        <div class="field-group">
+          <%= form.label :system_strain, "Current Strain" %>
+          <%= form.text_field :system_strain %>
+        </div>
+        
+        <div class="field-group">
+          <%= form.label :system_strain_perm, "Permanent Strain" %>
+          <%= form.text_field :system_strain_perm %>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 10. Goals & Background -->
+    <fieldset>
+      <legend>Goals & Background</legend>
+      <div id="goals-container">
+        <% goals_array = @character_sheet.goals.is_a?(Array) ? @character_sheet.goals : [] %>
+        <% if goals_array.any? %>
+          <% goals_array.each_with_index do |goal, index| %>
+            <div class="dynamic-item">
+              <% if index > 0 %>
+                <button type="button" class="remove-btn" onclick="removeItem(this)">×</button>
+              <% end %>
+              <div class="field-group">
+                <label>Goal</label>
+                <input type="text" name="character_sheet[goals_attributes][<%= index %>][goal]" value="<%= goal['goal'] %>" placeholder="Character goal or motivation">
+              </div>
+              <div class="field-group" style="margin-top: 10px;">
+                <label>Progress/Notes</label>
+                <textarea name="character_sheet[goals_attributes][<%= index %>][notes]" rows="2" placeholder="Progress toward this goal..."><%= goal['notes'] %></textarea>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="dynamic-item">
+            <div class="field-group">
+              <label>Goal</label>
+              <input type="text" name="character_sheet[goals_attributes][0][goal]" placeholder="Character goal or motivation">
+            </div>
+            <div class="field-group" style="margin-top: 10px;">
+              <label>Progress/Notes</label>
+              <textarea name="character_sheet[goals_attributes][0][notes]" rows="2" placeholder="Progress toward this goal..."></textarea>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <button type="button" class="add-btn" onclick="addGoal()">Add Goal</button>
+    </fieldset>
+
+    <!-- 11. Notes -->
+    <fieldset>
+      <legend>Notes</legend>
+      <div class="field-group">
+        <%= form.label :notes, "General Notes" %>
+        <%= form.text_area :notes, rows: 6, placeholder: "Additional character notes, backstory, quirks, etc..." %>
+      </div>
+      
+      <div class="field-group" style="margin-top: 15px;">
+        <%= form.label :tags %>
+        <%= form.text_field :tags, placeholder: "Comma-separated tags" %>
+      </div>
+    </fieldset>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <%= form.submit (@character_sheet.persisted? ? "Update Character Sheet" : "Create Character Sheet"), class: "btn btn-primary" %>
+      <%= link_to "Cancel", (@character_sheet.persisted? ? [@player, @character_sheet] : @player), class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  body {
+    background: #1a1a1a;
+    color: #c0c0c0;
+    font-family: 'Courier New', monospace;
+    line-height: 1.4;
+    margin: 0;
+    padding: 20px;
+  }
+
+  .form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #2a2a2a;
+    border: 2px solid #4a4a4a;
+    border-radius: 8px;
+    border-bottom: 3px solid #8b4513;
+    padding: 30px;
+  }
+
+  h1 {
+    color: #c0c0c0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 1.8em;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #8b4513;
+    padding-bottom: 10px;
+  }
+
+  .player-info {
+    background: #333;
+    padding: 10px 15px;
+    margin-bottom: 25px;
+    border-left: 4px solid #8b4513;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .errors {
+    background: #4a2a2a;
+    color: #ff6b6b;
+    border: 2px solid #8a4a4a;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .errors h4 {
+    margin-top: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  fieldset {
+    background: #333;
+    border: 2px solid #4a4a4a;
+    border-radius: 6px;
+    border-left: 4px solid #8b4513;
+    margin-bottom: 25px;
+    padding: 20px;
+  }
+
+  legend {
+    background: #2a2a2a;
+    color: #cd853f;
+    padding: 8px 15px;
+    border: 2px solid #4a4a4a;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9em;
+  }
+
+  .grid-1 { display: grid; grid-template-columns: 1fr; gap: 15px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+  .grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; }
+
+  .quick-ref-group {
+    background: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 3px solid #8b4513;
+  }
+
+  .group-title {
+    color: #cd853f;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8em;
+    margin: 0 0 10px 0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #555;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .attribute-group {
+    background: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .attribute-name {
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    color: #cd853f;
+    font-size: 0.8em;
+  }
+
+  .modifier-display {
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 5px;
+  }
+
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #c0c0c0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8em;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 8px;
+    background: #1a1a1a;
+    color: #c0c0c0;
+    border: 2px solid #555;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    box-sizing: border-box;
+  }
+
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: #8b4513;
+    background: #2a2a2a;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .dynamic-item {
+    background: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+
+  .remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #8b2635;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 0.7em;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .add-btn {
+    background: #2a4a2a;
+    color: #90ee90;
+    border: 2px solid #4a8a4a;
+    border-radius: 4px;
+    padding: 8px 15px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    font-size: 0.8em;
+  }
+
+  .add-btn:hover {
+    background: #3a5a3a;
+  }
+
+  .form-actions {
+    margin-top: 30px;
+    text-align: center;
+    padding-top: 20px;
+    border-top: 2px solid #4a4a4a;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 12px 25px;
+    text-decoration: none;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Courier New', monospace;
+    border: 2px solid;
+    margin: 0 10px;
+    cursor: pointer;
+    font-size: 0.9em;
+  }
+
+  .btn-primary {
+    background: #8b4513;
+    color: #ffffff;
+    border-color: #654321;
+  }
+
+  .btn-primary:hover {
+    background: #a0522d;
+  }
+
+  .btn-secondary {
+    background: #4a4a4a;
+    color: #c0c0c0;
+    border-color: #555;
+  }
+
+  .btn-secondary:hover {
+    background: #555;
+  }
+
+  @media (max-width: 768px) {
+    .grid-1, .grid-2, .grid-3, .grid-4, .grid-6 {
+      grid-template-columns: 1fr;
+    }
+    
+    .form-container {
+      padding: 20px;
+    }
+    
+    .form-actions {
+      text-align: left;
+    }
+    
+    .btn {
+      display: block;
+      margin: 10px 0;
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  // SWN attribute modifier calculation: 3(-2), 4-7(-1), 8-13(0), 14-17(+1), 18(+2)
+  function updateModifier(input, modId) {
+    const value = parseInt(input.value) || 8;
+    let modifier = 0;
+    
+    if (value === 3) modifier = -2;
+    else if (value >= 4 && value <= 7) modifier = -1;
+    else if (value >= 8 && value <= 13) modifier = 0;
+    else if (value >= 14 && value <= 17) modifier = +1;
+    else if (value === 18) modifier = +2;
+    
+    const modStr = modifier >= 0 ? `+${modifier}` : `${modifier}`;
+    document.getElementById(modId).textContent = `Mod: ${modStr}`;
+  }
+
+  // Dynamic form functions
+  function addWeapon() {
+    const container = document.getElementById('weapons-container');
+    const newWeapon = container.firstElementChild.cloneNode(true);
+    newWeapon.innerHTML += '<button type="button" class="remove-btn" onclick="removeItem(this)">×</button>';
+    const inputs = newWeapon.querySelectorAll('input');
+    inputs.forEach(input => input.value = '');
+    container.appendChild(newWeapon);
+  }
+
+  function addArmor() {
+    const container = document.getElementById('armor-container');
+    const newArmor = container.firstElementChild.cloneNode(true);
+    newArmor.innerHTML += '<button type="button" class="remove-btn" onclick="removeItem(this)">×</button>';
+    const inputs = newArmor.querySelectorAll('input');
+    inputs.forEach(input => input.value = '');
+    container.appendChild(newArmor);
+  }
+
+  function addFocus() {
+    const container = document.getElementById('foci-container');
+    const newFocus = container.firstElementChild.cloneNode(true);
+    newFocus.innerHTML += '<button type="button" class="remove-btn" onclick="removeItem(this)">×</button>';
+    const inputs = newFocus.querySelectorAll('input, textarea');
+    inputs.forEach(input => input.value = '');
+    container.appendChild(newFocus);
+  }
+
+  function addGoal() {
+    const container = document.getElementById('goals-container');
+    const newGoal = container.firstElementChild.cloneNode(true);
+    newGoal.innerHTML += '<button type="button" class="remove-btn" onclick="removeItem(this)">×</button>';
+    const inputs = newGoal.querySelectorAll('input, textarea');
+    inputs.forEach(input => input.value = '');
+    container.appendChild(newGoal);
+  }
+
+  function addPsiPower() {
+    const container = document.getElementById('psi-powers-container');
+    const newPower = container.firstElementChild.cloneNode(true);
+    newPower.innerHTML += '<button type="button" class="remove-btn" onclick="removeItem(this)">×</button>';
+    const inputs = newPower.querySelectorAll('input, textarea');
+    inputs.forEach(input => input.value = '');
+    container.appendChild(newPower);
+  }
+
+  function removeItem(button) {
+    button.closest('.dynamic-item').remove();
+  }
+
+  // Initialize modifiers on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'].forEach(function(attr) {
+      const input = document.querySelector(`input[name*="${attr}"]`);
+      if (input && input.value) {
+        const modId = attr.substring(0, 3) + '-mod';
+        updateModifier(input, modId);
+      }
+    });
+  });
+</script>
