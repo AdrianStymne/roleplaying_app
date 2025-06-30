@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  content: MyText
+  player: one
+  roll_data: 
+
+two:
+  content: MyText
+  player: two
+  roll_data: 
