@@ -1,0 +1,9 @@
+<div class="message" id="message_<%= message.id %>">
+  <div class="message-header">
+    <strong><%= message.player.name %></strong>
+    <span class="timestamp"><%= message.created_at.strftime("%H:%M") %></span>
+  </div>
+  <div class="message-content">
+    <%= message.display_content %>
+  </div>
+</div>
