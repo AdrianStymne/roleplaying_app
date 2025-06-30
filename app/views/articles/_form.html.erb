@@ -11,6 +11,20 @@
   <% end %>
 
   <div class="form-group">
+    <%= form.label :image, class: "form-label" %>
+    <%= form.file_field :image, class: "form-input", accept: "image/*" %>
+    <small class="form-help">Optional: Add an image to your article (JPEG, PNG, GIF, or WebP, max 10MB)</small>
+    
+    <% if article.image.attached? %>
+      <div class="current-image">
+        <p>Current image:</p>
+        <%= image_tag article.image, class: "image-preview" %>
+        <p><small>Upload a new image to replace this one</small></p>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="form-group">
     <%= form.label :title, class: "form-label" %>
     <%= form.text_field :title, class: "form-input", placeholder: "Enter article title..." %>
   </div>
@@ -268,5 +282,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
   .btn-secondary:hover {
     background-color: #7f8c8d;
+  }
+
+  .current-image {
+    margin-top: 16px;
+    padding: 16px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+  }
+
+  .current-image p {
+    margin: 0 0 12px 0;
+    color: #495057;
+    font-weight: 500;
+  }
+
+  .image-preview {
+    max-width: 300px;
+    max-height: 200px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
 </style>

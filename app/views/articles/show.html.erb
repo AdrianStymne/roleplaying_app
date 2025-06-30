@@ -1,18 +1,32 @@
 <div class="article-header">
-  <div class="article-meta">
-    <% if @article.category.present? %>
-      <span class="category-tag"><%= @article.category %></span>
-    <% end %>
-    <% if @article.tags.any? %>
-      <div class="tags">
-        <% @article.tags.each do |tag| %>
-          <span class="tag"><%= tag %></span>
-        <% end %>
-      </div>
-    <% end %>
+  <div class="header-top">
+    <div class="article-meta">
+      <% if @article.category.present? %>
+        <span class="category-tag"><%= @article.category %></span>
+      <% end %>
+      <% if @article.tags.any? %>
+        <div class="tags">
+          <% @article.tags.each do |tag| %>
+            <span class="tag"><%= tag %></span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="header-actions">
+      <%= link_to "← Back", articles_path, class: "btn btn-secondary" %>
+      <%= link_to "Edit", edit_article_path(@article), class: "btn btn-primary" %>
+      <button type="button" id="delete-toggle" class="btn btn-danger">Delete</button>
+    </div>
   </div>
   
   <h1 class="article-title"><%= @article.title %></h1>
+  
+  <% if @article.image.attached? %>
+    <div class="article-image-container">
+      <%= image_tag @article.image, class: "article-image" %>
+    </div>
+  <% end %>
   
   <div class="article-info">
     <span class="created-date">
@@ -30,13 +44,35 @@
   <%= @article.rendered_content %>
 </div>
 
-<div class="article-actions">
-  <%= link_to "← Back to Articles", articles_path, class: "btn btn-secondary" %>
-  <%= link_to "Edit", edit_article_path(@article), class: "btn btn-primary" %>
-  <%= link_to "Delete", article_path(@article), method: :delete,
-              data: { confirm: "Are you sure you want to delete this article?" },
-              class: "btn btn-danger" %>
+<div id="delete-confirmation" class="delete-confirmation" style="display: none;">
+  <div class="delete-warning">
+    <h3>⚠️ Delete Article</h3>
+    <p>Are you sure you want to permanently delete "<strong><%= @article.title %></strong>"?</p>
+    <p class="warning-text">This action cannot be undone.</p>
+    
+    <div class="delete-actions">
+      <%= button_to "Yes, Delete Forever", article_path(@article), method: :delete, class: "btn btn-danger-confirm" %>
+      <button type="button" id="cancel-delete" class="btn btn-secondary">Cancel</button>
+    </div>
+  </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const deleteToggle = document.getElementById('delete-toggle');
+  const deleteConfirmation = document.getElementById('delete-confirmation');
+  const cancelDelete = document.getElementById('cancel-delete');
+  
+  deleteToggle.addEventListener('click', function() {
+    deleteConfirmation.style.display = 'block';
+    deleteConfirmation.scrollIntoView({ behavior: 'smooth' });
+  });
+  
+  cancelDelete.addEventListener('click', function() {
+    deleteConfirmation.style.display = 'none';
+  });
+});
+</script>
 
 <style>
   .article-header {
@@ -45,10 +81,22 @@
     border-bottom: 2px solid #e1e5e9;
   }
 
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+
   .article-meta {
     display: flex;
     gap: 12px;
-    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
     flex-wrap: wrap;
   }
 
@@ -88,6 +136,20 @@
     font-size: 0.9em;
   }
 
+  .article-image-container {
+    margin: 24px 0;
+    text-align: center;
+  }
+
+  .article-image {
+    max-width: min(100%, 1500px);
+    max-height: 1000px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e1e5e9;
+  }
+
   .article-content {
     background: white;
     padding: 32px;
@@ -105,15 +167,6 @@
 
   .article-content em {
     color: #7f8c8d;
-  }
-
-  .article-actions {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding-top: 20px;
-    border-top: 1px solid #e1e5e9;
   }
 
   .btn {
@@ -152,5 +205,54 @@
 
   .btn-danger:hover {
     background-color: #c0392b;
+  }
+
+  .delete-confirmation {
+    margin-top: 32px;
+    padding: 24px;
+    background-color: #fff5f5;
+    border: 2px solid #fed7d7;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.1);
+  }
+
+  .delete-warning h3 {
+    margin: 0 0 16px 0;
+    color: #e74c3c;
+    font-size: 1.3em;
+  }
+
+  .delete-warning p {
+    margin: 0 0 12px 0;
+    color: #495057;
+  }
+
+  .warning-text {
+    color: #e74c3c !important;
+    font-weight: 500;
+    margin-bottom: 24px !important;
+  }
+
+  .delete-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .btn-danger-confirm {
+    background-color: #dc3545;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+    font-size: 1em;
+  }
+
+  .btn-danger-confirm:hover {
+    background-color: #b02a37;
+    transform: none;
   }
 </style>

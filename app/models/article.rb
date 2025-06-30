@@ -2,8 +2,14 @@ class Article < ApplicationRecord
   validates :title, presence: true
   validates :content, presence: true
 
+  # Active Storage association
+  has_one_attached :image
+
   # Ensure tags is always an array
   before_save :normalize_tags
+
+  # Image validation
+  validate :acceptable_image
 
   scope :by_title, -> { order(:title) }
   scope :by_category, ->(category) { where(category: category) }
@@ -28,5 +34,18 @@ class Article < ApplicationRecord
 
   def normalize_tags
     self.tags = tags.map(&:strip).reject(&:blank?).uniq if tags.present?
+  end
+
+  def acceptable_image
+    return unless image.attached?
+
+    unless image.blob.byte_size <= 10.megabyte
+      errors.add(:image, "is too big (should be at most 10MB)")
+    end
+
+    acceptable_types = [ "image/jpeg", "image/png", "image/gif", "image/webp" ]
+    unless acceptable_types.include?(image.blob.content_type)
+      errors.add(:image, "must be a JPEG, PNG, GIF, or WebP")
+    end
   end
 end
