@@ -1,0 +1,141 @@
+<div class="players-container">
+  <div class="page-header">
+    <h1>Players</h1>
+    <%= link_to "Add New Player", new_player_path, class: "btn btn-primary" %>
+  </div>
+
+  <div class="players-grid">
+    <% @players.each do |player| %>
+      <div class="player-card">
+        <h3><%= link_to player.name, player %></h3>
+        <div class="player-status">
+          <span class="status-badge <%= player.active? ? 'active' : 'inactive' %>">
+            <%= player.active? ? 'Active' : 'Inactive' %>
+          </span>
+        </div>
+        <div class="player-stats">
+          <p><%= pluralize(player.messages.count, 'message') %></p>
+        </div>
+        <div class="player-actions">
+          <%= link_to "View", player, class: "btn btn-sm" %>
+          <%= link_to "Edit", edit_player_path(player), class: "btn btn-sm" %>
+          <%= link_to "Delete", player, method: :delete, 
+              data: { confirm: "Are you sure?" }, 
+              class: "btn btn-sm btn-danger" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .players-container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+
+  .players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .player-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+  }
+
+  .player-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  .player-card h3 {
+    margin-top: 0;
+  }
+
+  .player-card h3 a {
+    color: #2c3e50;
+    text-decoration: none;
+  }
+
+  .player-card h3 a:hover {
+    color: #3498db;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+
+  .status-badge.active {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .status-badge.inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+  .player-stats {
+    margin: 15px 0;
+    color: #666;
+    font-size: 0.9em;
+  }
+
+  .player-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    text-align: center;
+  }
+
+  .btn-primary {
+    background-color: #3498db;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #2980b9;
+  }
+
+  .btn-sm {
+    padding: 4px 12px;
+    font-size: 0.9em;
+    background-color: #ecf0f1;
+    color: #2c3e50;
+  }
+
+  .btn-sm:hover {
+    background-color: #bdc3c7;
+  }
+
+  .btn-danger {
+    background-color: #e74c3c;
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background-color: #c0392b;
+  }
+</style>

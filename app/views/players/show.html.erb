@@ -1,0 +1,123 @@
+<div class="player-profile">
+  <div class="profile-header">
+    <h1><%= @player.name %></h1>
+    <div class="profile-actions">
+      <%= link_to "Edit", edit_player_path(@player), class: "btn btn-primary" %>
+      <%= link_to "Back to Players", players_path, class: "btn" %>
+    </div>
+  </div>
+
+  <div class="profile-content">
+    <div class="profile-section">
+      <h2>Player Information</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <strong>Status:</strong>
+          <span class="status-badge <%= @player.active? ? 'active' : 'inactive' %>">
+            <%= @player.active? ? 'Active' : 'Inactive' %>
+          </span>
+        </div>
+        <div class="info-item">
+          <strong>Joined:</strong>
+          <%= @player.created_at.strftime("%B %d, %Y") %>
+        </div>
+        <div class="info-item">
+          <strong>Total Messages:</strong>
+          <%= @player.messages.count %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Placeholder for future character sheets -->
+    <div class="profile-section">
+      <h2>Character Sheets</h2>
+      <p class="placeholder">Character sheets will appear here in the future.</p>
+    </div>
+
+    <!-- Recent activity -->
+    <div class="profile-section">
+      <h2>Recent Messages</h2>
+      <% if @recent_messages.any? %>
+        <div class="recent-messages">
+          <% @recent_messages.each do |message| %>
+            <div class="message-preview">
+              <span class="timestamp"><%= message.created_at.strftime("%m/%d %H:%M") %></span>
+              <p><%= truncate(message.display_content, length: 100) %></p>
+            </div>
+          <% end %>
+        </div>
+        <%= link_to "View all messages in feed", messages_path, class: "btn btn-sm" %>
+      <% else %>
+        <p>No messages yet.</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+  .player-profile {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #ecf0f1;
+    margin-bottom: 30px;
+  }
+
+  .profile-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .profile-section {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .profile-section h2 {
+    margin-top: 0;
+    color: #2c3e50;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+
+  .info-item {
+    padding: 10px 0;
+  }
+
+  .placeholder {
+    color: #95a5a6;
+    font-style: italic;
+  }
+
+  .recent-messages {
+    margin-bottom: 15px;
+  }
+
+  .message-preview {
+    border-left: 3px solid #3498db;
+    padding-left: 15px;
+    margin-bottom: 15px;
+  }
+
+  .message-preview .timestamp {
+    font-size: 0.85em;
+    color: #7f8c8d;
+  }
+
+  .message-preview p {
+    margin: 5px 0 0 0;
+  }
+</style>
