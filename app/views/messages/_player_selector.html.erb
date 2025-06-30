@@ -24,3 +24,140 @@
     </div>
   <% end %>
 </div>
+
+<style>
+  .player-selector {
+    background: #2a2a2a;
+    border: 2px solid #4a4a4a;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-left: 4px solid #8b4513;
+  }
+
+  .current-player-display,
+  .no-player-selected {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .playing-as,
+  .select-prompt {
+    color: #cd853f;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9em;
+    font-family: 'Courier New', monospace;
+  }
+
+  .current-player-name {
+    color: #c0c0c0;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 6px 12px;
+    background: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .player-change-form,
+  .player-select-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .player-select-dropdown {
+    padding: 8px 12px;
+    background: #1a1a1a;
+    border: 2px solid #4a4a4a;
+    border-radius: 4px;
+    color: #c0c0c0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    min-width: 150px;
+  }
+
+  .player-select-dropdown:focus {
+    outline: none;
+    border-color: #8b4513;
+    box-shadow: 0 0 6px rgba(139, 69, 19, 0.3);
+  }
+
+  .player-select-dropdown option {
+    background: #1a1a1a;
+    color: #c0c0c0;
+    padding: 8px;
+  }
+
+  .switch-player-button,
+  .set-player-button {
+    padding: 8px 14px;
+    background: #8b4513;
+    color: #ffffff;
+    border: 2px solid #654321;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background-color 0.2s;
+  }
+
+  .switch-player-button:hover,
+  .set-player-button:hover {
+    background: #a0522d;
+  }
+
+  .switch-player-button:active,
+  .set-player-button:active {
+    transform: translateY(1px);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .current-player-display,
+    .no-player-selected {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    
+    .player-change-form,
+    .player-select-form {
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .player-select-dropdown {
+      flex: 1;
+      min-width: unset;
+    }
+    
+    .current-player-name {
+      align-self: flex-start;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .player-change-form,
+    .player-select-form {
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .player-select-dropdown,
+    .switch-player-button,
+    .set-player-button {
+      width: 100%;
+    }
+  }
+</style>

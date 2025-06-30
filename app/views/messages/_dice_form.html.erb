@@ -8,7 +8,7 @@
         </div>
         
         <div class="dice-buttons">
-          <% [4, 6, 8, 20].each do |sides| %>
+          <% [4, 6, 8, 12, 20].each do |sides| %>
             <%= form.button "d#{sides}", type: "submit", name: "dice_type", value: sides, class: "dice-button" %>
           <% end %>
         </div>

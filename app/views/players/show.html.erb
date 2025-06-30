@@ -3,7 +3,7 @@
     <h1><%= @player.name %></h1>
     <div class="profile-actions">
       <%= link_to "Edit", edit_player_path(@player), class: "btn btn-primary" %>
-      <%= link_to "Back to Players", players_path, class: "btn" %>
+      <%= link_to "Back to Players", players_path, class: "btn btn-secondary" %>
     </div>
   </div>
 
@@ -28,37 +28,37 @@
       </div>
     </div>
 
-    <!-- Placeholder for future character sheets -->
+    <!-- Character Sheet Section -->
     <div class="profile-section">
-  <h2>Character Sheet</h2>
-  <% if @player.character_sheet.present? %>
-    <div class="character-sheet-summary">
-      <div class="character-info">
-        <h3><%= @player.character_sheet.name || "Unnamed Character" %></h3>
-        <div class="character-details">
-          <span class="character-class"><%= @player.character_sheet.character_class %></span>
-          <% if @player.character_sheet.species.present? %>
-            <span class="character-species"><%= @player.character_sheet.species %></span>
-          <% end %>
-          <% if @player.character_sheet.level.present? %>
-            <span class="character-level">Level <%= @player.character_sheet.level %></span>
-          <% end %>
+      <h2>Character Sheet</h2>
+      <% if @player.character_sheet.present? %>
+        <div class="character-sheet-summary">
+          <div class="character-info">
+            <h3><%= @player.character_sheet.name || "Unnamed Character" %></h3>
+            <div class="character-details">
+              <span class="character-class"><%= @player.character_sheet.character_class %></span>
+              <% if @player.character_sheet.species.present? %>
+                <span class="character-species"><%= @player.character_sheet.species %></span>
+              <% end %>
+              <% if @player.character_sheet.level.present? %>
+                <span class="character-level">Level <%= @player.character_sheet.level %></span>
+              <% end %>
+            </div>
+          </div>
+          <div class="character-actions">
+            <%= link_to "View Character Sheet", [@player, @player.character_sheet], class: "btn btn-primary" %>
+            <%= link_to "Edit Character Sheet", edit_player_character_sheet_path(@player), class: "btn btn-secondary" %>
+          </div>
         </div>
-      </div>
-      <div class="character-actions">
-        <%= link_to "View Character Sheet", [@player, @player.character_sheet], class: "btn btn-primary" %>
-        <%= link_to "Edit Character Sheet", edit_player_character_sheet_path(@player), class: "btn btn-secondary" %>
-      </div>
+      <% else %>
+        <div class="no-character-sheet">
+          <p>No character sheet created yet.</p>
+          <%= link_to "Create Character Sheet", new_player_character_sheet_path(@player), class: "btn btn-primary" %>
+        </div>
+      <% end %>
     </div>
-  <% else %>
-    <div class="no-character-sheet">
-      <p>No character sheet created yet.</p>
-      <%= link_to "Create Character Sheet", new_player_character_sheet_path(@player), class: "btn btn-primary" %>
-    </div>
-  <% end %>
-</div>
 
-    <!-- Recent activity -->
+    <!-- Recent Messages Section -->
     <div class="profile-section">
       <h2>Recent Messages</h2>
       <% if @recent_messages.any? %>
@@ -72,58 +72,177 @@
         </div>
         <%= link_to "View all messages in feed", messages_path, class: "btn btn-sm" %>
       <% else %>
-        <p>No messages yet.</p>
+        <p class="no-messages">No messages yet.</p>
       <% end %>
     </div>
   </div>
 </div>
 
 <style>
+  body {
+    background: #1a1a1a;
+    color: #c0c0c0;
+    font-family: 'Courier New', monospace;
+  }
+
   .player-profile {
     max-width: 800px;
     margin: 0 auto;
+    padding: 20px;
   }
 
   .profile-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #ecf0f1;
-    margin-bottom: 30px;
+    padding: 20px;
+    background: #2a2a2a;
+    border: 2px solid #4a4a4a;
+    border-radius: 8px;
+    border-bottom: 3px solid #8b4513;
+    margin-bottom: 25px;
+  }
+
+  .profile-header h1 {
+    margin: 0;
+    color: #c0c0c0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 1.8em;
   }
 
   .profile-actions {
     display: flex;
-    gap: 10px;
+    gap: 12px;
   }
 
   .profile-section {
-    background: white;
-    padding: 25px;
+    background: #2a2a2a;
+    padding: 20px;
+    border: 2px solid #4a4a4a;
     border-radius: 8px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid #8b4513;
   }
 
   .profile-section h2 {
     margin-top: 0;
-    color: #2c3e50;
+    margin-bottom: 20px;
+    color: #cd853f;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1.2em;
   }
 
   .info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 15px;
   }
 
   .info-item {
-    padding: 10px 0;
+    padding: 12px 0;
+    border-bottom: 1px solid #4a4a4a;
   }
 
-  .placeholder {
-    color: #95a5a6;
-    font-style: italic;
+  .info-item:last-child {
+    border-bottom: none;
+  }
+
+  .info-item strong {
+    color: #cd853f;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9em;
+  }
+
+  .status-badge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-left: 10px;
+  }
+
+  .status-badge.active {
+    background: #2a4a2a;
+    color: #90ee90;
+    border: 1px solid #4a8a4a;
+  }
+
+  .status-badge.inactive {
+    background: #4a2a2a;
+    color: #ff6b6b;
+    border: 1px solid #8a4a4a;
+  }
+
+  .character-sheet-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #3a3a3a;
+    border-radius: 6px;
+    border: 1px solid #555;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .character-info h3 {
+    margin: 0 0 8px 0;
+    color: #c0c0c0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .character-details {
+    display: flex;
+    gap: 12px;
+    font-size: 0.9em;
+    flex-wrap: wrap;
+  }
+
+  .character-class,
+  .character-species,
+  .character-level {
+    background: #8b4513;
+    color: #ffffff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8em;
+  }
+
+  .character-species {
+    background: #4a4a4a;
+  }
+
+  .character-level {
+    background: #2a4a2a;
+  }
+
+  .character-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .no-character-sheet {
+    text-align: center;
+    padding: 30px;
+    background: #3a3a3a;
+    border-radius: 6px;
+    border: 1px solid #555;
+  }
+
+  .no-character-sheet p {
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: #888;
   }
 
   .recent-messages {
@@ -131,70 +250,98 @@
   }
 
   .message-preview {
-    border-left: 3px solid #3498db;
+    border-left: 3px solid #8b4513;
     padding-left: 15px;
     margin-bottom: 15px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background: #3a3a3a;
+    border-radius: 0 4px 4px 0;
   }
 
   .message-preview .timestamp {
-    font-size: 0.85em;
-    color: #7f8c8d;
+    font-size: 0.8em;
+    color: #cd853f;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
   }
 
   .message-preview p {
     margin: 5px 0 0 0;
+    color: #c0c0c0;
   }
-  .character-sheet-summary {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 6px;
-  border: 1px solid #e9ecef;
-}
 
-.character-info h3 {
-  margin: 0 0 8px 0;
-  color: #2c3e50;
-}
+  .no-messages {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+  }
 
-.character-details {
-  display: flex;
-  gap: 15px;
-  font-size: 0.9em;
-}
+  .btn {
+    padding: 10px 18px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9em;
+    border: 2px solid;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Courier New', monospace;
+    display: inline-block;
+  }
 
-.character-class, .character-species, .character-level {
-  background: #e9ecef;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: 500;
-}
+  .btn-primary {
+    background: #8b4513;
+    color: #ffffff;
+    border-color: #654321;
+  }
 
-.character-actions {
-  display: flex;
-  gap: 10px;
-}
+  .btn-primary:hover {
+    background: #a0522d;
+  }
 
-.no-character-sheet {
-  text-align: center;
-  padding: 30px;
-  color: #6c757d;
-}
+  .btn-secondary {
+    background: #4a4a4a;
+    color: #c0c0c0;
+    border-color: #555;
+  }
 
-.no-character-sheet p {
-  margin-bottom: 15px;
-  font-size: 1.1em;
-}
+  .btn-secondary:hover {
+    background: #555;
+  }
 
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-  border: none;
-}
+  .btn-sm {
+    padding: 8px 14px;
+    font-size: 0.8em;
+  }
 
-.btn-secondary:hover {
-  background-color: #5a6268;
-}
+  /* Responsive */
+  @media (max-width: 768px) {
+    .profile-header {
+      flex-direction: column;
+      gap: 15px;
+      align-items: flex-start;
+    }
+    
+    .profile-header h1 {
+      font-size: 1.5em;
+    }
+    
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .character-sheet-summary {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .character-actions {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  }
 </style>
