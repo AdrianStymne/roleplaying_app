@@ -1,0 +1,26 @@
+<div class="player-selector">
+  <% if current_player %>
+    <div class="current-player-display">
+      <span class="playing-as">Playing as:</span>
+      <span class="current-player-name"><%= current_player.name %></span>
+      <%= form_with url: set_current_player_path, local: false, class: "player-change-form" do |form| %>
+        <%= form.select :player_id, 
+            options_from_collection_for_select(players, :id, :name, current_player.id), 
+            {}, 
+            { class: "player-select-dropdown" } %>
+        <%= form.submit "Switch Player", class: "switch-player-button" %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="no-player-selected">
+      <span class="select-prompt">Select your character:</span>
+      <%= form_with url: set_current_player_path, local: false, class: "player-select-form" do |form| %>
+        <%= form.select :player_id, 
+            options_from_collection_for_select(players, :id, :name), 
+            { prompt: "Choose player..." },
+            { class: "player-select-dropdown" } %>
+        <%= form.submit "Set Player", class: "set-player-button" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

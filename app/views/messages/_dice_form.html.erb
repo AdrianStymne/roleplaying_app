@@ -2,13 +2,6 @@
   <h3>🎲 Roll Dice</h3>
   <%= form_with url: roll_dice_path, local: false, class: "dice-form" do |form| %>
     <div class="dice-controls">
-      <div class="form-group">
-        <%= form.select :player_id, 
-            options_from_collection_for_select(players, :id, :name), 
-            { prompt: "Select player" },
-            { class: "player-select" } %>
-      </div>
-      
       <div class="dice-type-group">
         <div class="dice-count">
           <%= form.number_field :count, value: 1, min: 1, max: 10, class: "dice-input" %>

@@ -3,24 +3,43 @@ class MessagesController < ApplicationController
     @messages = Message.recent.includes(:player)
     @message = Message.new
     @players = Player.all
+    @current_player = current_player
+  end
+
+  def set_current_player
+    if params[:player_id].present?
+      session[:current_player_id] = params[:player_id]
+    end
+    redirect_to messages_path
   end
 
   def create
-    @message = Message.new(message_params)
+    if current_player.nil?
+      redirect_to messages_path, alert: "Please select a player first"
+      return
+    end
+
+    @message = Message.new(message_params.merge(player_id: current_player.id))
 
     if @message.save
       redirect_to messages_path
     else
       @messages = Message.recent.includes(:player)
       @players = Player.all
+      @current_player = current_player
       render :index
     end
   end
 
   def roll_dice
-    @message = Message.new(player_id: dice_params[:player_id])
+    if current_player.nil?
+      redirect_to messages_path, alert: "Please select a player first"
+      return
+    end
 
-    if @message.player_id.present? && valid_dice_type?
+    @message = Message.new(player_id: current_player.id)
+
+    if valid_dice_type?
       @message.roll_dice(dice_params[:dice_type], dice_params[:count], dice_params[:modifier])
 
       if @message.save
@@ -29,18 +48,22 @@ class MessagesController < ApplicationController
         redirect_to messages_path, alert: "Failed to roll dice"
       end
     else
-      redirect_to messages_path, alert: "Please select a player and valid dice"
+      redirect_to messages_path, alert: "Please select valid dice"
     end
   end
 
   private
 
+  def current_player
+    @current_player ||= Player.find_by(id: session[:current_player_id]) if session[:current_player_id]
+  end
+
   def message_params
-    params.require(:message).permit(:content, :player_id)
+    params.require(:message).permit(:content)
   end
 
   def dice_params
-    params.permit(:player_id, :dice_type, :count, :modifier).tap do |p|
+    params.permit(:dice_type, :count, :modifier).tap do |p|
       p[:count] = (p[:count]&.to_i || 1).clamp(1, 10)
       p[:modifier] = p[:modifier]&.to_i || 0
       p[:dice_type] = p[:dice_type]&.to_i

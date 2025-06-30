@@ -3,4 +3,5 @@ Rails.application.routes.draw do
   resources :messages, only: [ :index, :create ]
   resources :players
   post "roll_dice", to: "messages#roll_dice", as: "roll_dice"
+  post "set_current_player", to: "messages#set_current_player", as: "set_current_player"
 end
